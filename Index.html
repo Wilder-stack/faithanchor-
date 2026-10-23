@@ -1,0 +1,374 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <link rel="manifest" href="manifest.json">
+  <link rel="icon" href="icon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="icon.svg">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="theme-color" content="#f7f9f2">
+<title>FaithAnchor | Grow in Faith</title>
+<style>
+:root{--bg:#f7f9f2;--card:#fff;--green:#356747;--pale:#e6f1e3;--ink:#25392b;--muted:#718074;--gold:#f2cf83;--line:#e4eade}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:Arial,sans-serif}
+header{position:sticky;top:0;z-index:5;background:#fff;padding:15px 18px;border-bottom:1px solid var(--line)}
+.brand{font: bold 25px Georgia,serif;color:var(--green)}
+.tag{font-size:12px;color:var(--muted);margin-top:4px}
+main{max-width:780px;margin:auto;padding:17px 14px 100px}
+h1,h2,h3{font-family:Georgia,serif}
+h1{font-size:31px;margin:12px 0}
+h2{font-size:23px}
+p{line-height:1.65}
+.hero{padding:23px;border-radius:23px;background:linear-gradient(135deg,#dcefdc,#fff0cf);margin-bottom:18px}
+.eyebrow{font-size:11px;letter-spacing:1.5px;font-weight:bold;color:var(--green)}
+.card{background:var(--card);border:1px solid var(--line);padding:17px;border-radius:19px;margin-bottom:15px;box-shadow:0 4px 15px #1d3c2110}
+button,input,select,textarea{font:14px Arial;border-radius:11px;padding:12px}
+button{border:0;background:var(--green);color:white;cursor:pointer}
+button:active{opacity:.8}
+.secondary{background:var(--pale);color:var(--green)}
+.gold{background:var(--gold);color:#453617}
+input,select,textarea{width:100%;border:1px solid var(--line);background:white;color:var(--ink);margin:6px 0}
+textarea{resize:vertical}
+.actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}
+.actions button{flex:1}
+.small{font-size:12px;color:var(--muted)}
+.hidden{display:none!important}
+nav{position:fixed;bottom:0;left:0;right:0;z-index:10;background:white;border-top:1px solid var(--line);display:flex;padding:7px 2px calc(7px + env(safe-area-inset-bottom))}
+nav button{flex:1;background:transparent;color:var(--muted);padding:8px 1px;font-size:11px;line-height:1.7}
+nav button.active{color:var(--green);font-weight:bold;background:var(--pale);border-radius:12px}
+.verse{padding:14px 0;border-bottom:1px solid var(--line);font:17px/1.8 Georgia,serif}
+.verse strong{font: bold 12px Arial;color:var(--green)}
+.verse button{float:right;padding:5px 9px}
+.grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
+.book{background:white;color:var(--ink);text-align:left;border:1px solid var(--line)}
+.book small{display:block;color:var(--muted);margin-top:5px}
+.bubble{padding:12px 14px;border-radius:15px;margin:10px 0;line-height:1.6;white-space:pre-wrap}
+.bot{background:var(--pale);margin-right:18px}
+.me{background:#356747;color:white;margin-left:18px}
+#chatMessages{max-height:48vh;overflow:auto}
+.result{padding:13px 0;border-bottom:1px solid var(--line)}
+footer{text-align:center;color:var(--muted);font-size:11px;padding:20px}
+</style>
+</head>
+<body>
+<header>
+  <div class="brand">
+  <img src="icon.svg" alt="FaithAnchor"
+       style="width:38px;height:38px;vertical-align:middle;margin-right:8px">
+  FaithAnchor
+  </div>
+  <div class="tag">Grow closer to God every day.</div>
+</header>
+
+<main>
+<section id="home">
+  <div class="hero">
+    <div class="eyebrow">YOUR DAILY WALK WITH GOD</div>
+    <h1>Stay rooted in His Word.</h1>
+    <p>A quiet place to read Scripture, reflect, pray and grow in faith.</p>
+    <div class="actions">
+      <button onclick="page('bible')">Read the Bible</button>
+      <button class="secondary" onclick="page('chat')">Bible Guide ✨</button>
+    </div>
+  </div>
+  <div class="card">
+    <div class="eyebrow">VERSE OF THE DAY</div>
+    <h2 id="dailyRef">John 16:33</h2>
+    <p id="dailyText">These things I have spoken unto you, that in me ye might have peace. In the world ye shall have tribulation: but be of good cheer; I have overcome the world.</p>
+    <div class="actions">
+      <button class="secondary" onclick="saveDaily()">♡ Save</button>
+      <button class="secondary" onclick="shareDaily()">Share</button>
+      <button class="secondary" onclick="newVerse()">Another verse</button>
+    </div>
+  </div>
+  <div class="card">
+    <h2>Continue reading</h2>
+    <p id="lastRead" class="small">Your Bible journey starts here.</p>
+    <button onclick="resume()">Continue →</button>
+  </div>
+  <div class="card">
+    <h2>Today's reflection 🌿</h2>
+    <p>What would trusting God look like in your life today?</p>
+    <textarea id="reflection" rows="3" placeholder="Write your thoughts..."></textarea>
+    <button onclick="saveReflection()">Save reflection</button>
+  </div>
+</section>
+
+<section id="bible" class="hidden">
+  <h2>Holy Bible 📖</h2>
+  <p class="small">King James Version · 66 books</p>
+  <div class="card">
+    <label>Book</label><select id="book"></select>
+    <label>Chapter</label><select id="chapter"></select>
+    <div class="actions">
+      <button onclick="loadChapter()">Read chapter</button>
+      <button class="secondary" onclick="searchPage()">Search Bible</button>
+    </div>
+    <p id="status" class="small">Choose a chapter to begin.</p>
+  </div>
+  <div class="card" id="reader">Choose a book and chapter.</div>
+  <div class="actions">
+    <button class="secondary" onclick="moveChapter(-1)">← Previous</button>
+    <button class="secondary" onclick="moveChapter(1)">Next →</button>
+  </div>
+  <h2>Explore all books</h2>
+  <div class="grid" id="booksGrid"></div>
+</section>
+
+<section id="search" class="hidden">
+  <h2>Search Scripture 🔎</h2>
+  <div class="card">
+    <input id="query" placeholder="Search saved Bible chapters...">
+    <p class="small">Searches chapters already downloaded to this device.</p>
+    <button onclick="searchBible()">Search</button>
+  </div>
+  <div id="searchResults"></div>
+</section>
+
+<section id="chat" class="hidden">
+  <div class="hero">
+    <div class="eyebrow">FAITHANCHOR STUDY COMPANION</div>
+    <h1>Bible Guide ✨</h1>
+    <p>Explore Bible themes and discover Scripture references.</p>
+  </div>
+  <div class="card">
+    <p class="small">This starter guide uses built-in topic responses. It is not a live AI service.</p>
+    <div id="chatMessages">
+      <div class="bubble bot">Peace be with you. What would you like to explore today? Try asking about anxiety, forgiveness, prayer, love, hope or faith.</div>
+    </div>
+    <input id="chatInput" placeholder="Ask about a Bible topic...">
+    <button style="width:100%" onclick="askGuide()">Send message ↑</button>
+  </div>
+</section>
+
+<section id="library" class="hidden">
+  <h2>My Library ♡</h2>
+  <div id="savedVerses"></div>
+  <div class="card">
+    <h2>Study notes</h2>
+    <input id="noteTitle" placeholder="Note title">
+    <textarea id="noteText" rows="4" placeholder="Write your study notes..."></textarea>
+    <button onclick="saveNote()">Save note</button>
+  </div>
+  <div id="notes"></div>
+</section>
+
+<section id="prayer" class="hidden">
+  <div class="hero"><div class="eyebrow">YOUR QUIET PLACE</div><h1>Let's pray. 🙏</h1><p>Speak honestly with God. You don't need perfect words.</p></div>
+  <div class="card">
+    <input id="prayerTitle" placeholder="Prayer title">
+    <textarea id="prayerText" rows="5" placeholder="Write your prayer..."></textarea>
+    <button onclick="savePrayer()">Save prayer</button>
+  </div>
+  <div id="prayers"></div>
+</section>
+
+<section id="plans" class="hidden">
+  <h2>Grow every day 🌱</h2>
+  <div class="card">
+    <h2>7 Days of Peace</h2>
+    <p>Read one passage daily and reflect on what it teaches you.</p>
+    <div id="planList"></div>
+    <p id="progress" class="small"></p>
+  </div>
+</section>
+<footer>FaithAnchor · Rooted in the Word</footer>
+</main>
+
+<nav>
+  <button class="active" data-page="home" onclick="page('home')">⌂<br>Home</button>
+  <button data-page="bible" onclick="page('bible')">📖<br>Bible</button>
+  <button data-page="search" onclick="searchPage()">⌕<br>Search</button>
+  <button data-page="chat" onclick="page('chat')">✧<br>Guide</button>
+  <button data-page="library" onclick="page('library')">♡<br>Library</button>
+  <button data-page="prayer" onclick="page('prayer')">🙏<br>Prayer</button>
+  <button data-page="plans" onclick="page('plans')">🌱<br>Plans</button>
+</nav>
+
+<script>
+"use strict";
+const $=id=>document.getElementById(id);
+const K="fa2_";
+function get(k,fallback){
+ try{return JSON.parse(localStorage.getItem(K+k))??fallback}
+ catch(e){return fallback}
+}
+function put(k,v){localStorage.setItem(K+k,JSON.stringify(v))}
+const books=[
+["Genesis",50],["Exodus",40],["Leviticus",27],["Numbers",36],["Deuteronomy",34],["Joshua",24],["Judges",21],["Ruth",4],["1 Samuel",31],["2 Samuel",24],["1 Kings",22],["2 Kings",25],["1 Chronicles",29],["2 Chronicles",36],["Ezra",10],["Nehemiah",13],["Esther",10],["Job",42],["Psalms",150],["Proverbs",31],["Ecclesiastes",12],["Song of Solomon",8],["Isaiah",66],["Jeremiah",52],["Lamentations",5],["Ezekiel",48],["Daniel",12],["Hosea",14],["Joel",3],["Amos",9],["Obadiah",1],["Jonah",4],["Micah",7],["Nahum",3],["Habakkuk",3],["Zephaniah",3],["Haggai",2],["Zechariah",14],["Malachi",4],["Matthew",28],["Mark",16],["Luke",24],["John",21],["Acts",28],["Romans",16],["1 Corinthians",16],["2 Corinthians",13],["Galatians",6],["Ephesians",6],["Philippians",4],["Colossians",4],["1 Thessalonians",5],["2 Thessalonians",3],["1 Timothy",6],["2 Timothy",4],["Titus",3],["Philemon",1],["Hebrews",13],["James",5],["1 Peter",5],["2 Peter",3],["1 John",5],["2 John",1],["3 John",1],["Jude",1],["Revelation",22]
+];
+const daily=[
+["John 16:33","These things I have spoken unto you, that in me ye might have peace. In the world ye shall have tribulation: but be of good cheer; I have overcome the world."],
+["Psalm 23:1","The LORD is my shepherd; I shall not want."],
+["Proverbs 3:5","Trust in the LORD with all thine heart; and lean not unto thine own understanding."],
+["Philippians 4:13","I can do all things through Christ which strengtheneth me."],
+["Isaiah 41:10","Fear thou not; for I am with thee: be not dismayed; for I am thy God."],
+["Psalm 46:10","Be still, and know that I am God."],
+["Romans 8:28","And we know that all things work together for good to them that love God."]
+];
+let dailyIndex=get("dailyIndex",0);
+let bi=get("bi",0), ch=get("ch",1), verses=[];
+function esc(s){return String(s).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]))}
+function page(id){
+ document.querySelectorAll("main section").forEach(s=>s.classList.add("hidden"));
+ $(id).classList.remove("hidden");
+ document.querySelectorAll("nav button").forEach(b=>b.classList.toggle("active",b.dataset.page===id));
+ if(id==="library")renderLibrary();
+ if(id==="prayer")renderPrayers();
+ if(id==="plans")renderPlan();
+ window.scrollTo(0,0);
+}
+function populate(){
+ $("book").innerHTML=books.map((b,i)=>`<option value="${i}">${b[0]}</option>`).join("");
+ $("booksGrid").innerHTML=books.map((b,i)=>`<button class="book" onclick="selectBook(${i})">${b[0]}<small>${b[1]} chapters</small></button>`).join("");
+ $("book").value=bi; populateChapters();
+}
+function populateChapters(){
+ $("chapter").innerHTML=Array.from({length:books[bi][1]},(_,i)=>`<option value="${i+1}">Chapter ${i+1}</option>`).join("");
+ $("chapter").value=Math.min(ch,books[bi][1]);
+}
+$("book").addEventListener("change",()=>{bi=+$("book").value;ch=1;populateChapters()});
+$("chapter").addEventListener("change",()=>ch=+$("chapter").value);
+function selectBook(i){bi=i;ch=1;$("book").value=i;populateChapters();loadChapter();window.scrollTo(0,0)}
+function cacheKey(b,c){return "chapter_"+b+"_"+c}
+async function loadChapter(){
+ bi=+$("book").value;ch=+$("chapter").value;put("bi",bi);put("ch",ch);
+ $("reader").innerHTML="<p>Loading chapter...</p>";
+ const cached=get(cacheKey(bi,ch),null);
+ if(cached){display(cached,true);return}
+ $("status").textContent="Connecting to Bible source...";
+ try{
+  // Fetch a KJV chapter from a public Bible text endpoint.
+  const name=books[bi][0];
+  const url="https://bible-api.com/"+encodeURIComponent(name+" "+ch)+"?translation=kjv";
+  const res=await fetch(url);
+  if(!res.ok)throw Error("Unable to load passage");
+  const data=await res.json();
+  if(!Array.isArray(data.verses)||!data.verses.length)throw Error("No verses returned");
+  verses=data.verses.map(v=>({number:v.verse,text:v.text.trim()}));
+  put(cacheKey(bi,ch),verses);display(verses,false);
+ }catch(e){
+  $("reader").innerHTML="<h3>Couldn't load this chapter</h3><p>Check your internet connection and try again. Some public Bible services may not provide every translation.</p>";
+  $("status").textContent="Chapter unavailable. Try again later.";
+ }
+}
+function display(data,offline){
+ verses=data;
+ $("status").textContent=offline?"Loaded from previously saved chapter.":"Chapter loaded.";
+ $("lastRead").textContent=books[bi][0]+" "+ch;
+ $("reader").innerHTML=`<h2>${esc(books[bi][0])} ${ch}</h2><p class="small">King James Version · ${offline?"Saved chapter":"Online chapter"}</p>`+
+ data.map(v=>`<div class="verse"><strong>${v.number}</strong> ${esc(v.text)} <button class="secondary" onclick="saveCurrent(${v.number})">♡</button></div>`).join("");
+}
+function moveChapter(n){
+ bi=+$("book").value;ch=+$("chapter").value+n;
+ if(ch<1){if(bi===0)return;bi--;ch=books[bi][1]}
+ if(ch>books[bi][1]){if(bi===65)return;bi++;ch=1}
+ $("book").value=bi;populateChapters();$("chapter").value=ch;loadChapter();
+}
+function saveCurrent(n){
+ const v=verses.find(x=>x.number===n);if(!v)return;
+ const ref=books[bi][0]+" "+ch+":"+n;
+ const a=get("saved",[]);
+ if(a.some(x=>x.ref===ref))return alert("Already saved.");
+ a.unshift({ref,text:v.text});put("saved",a);alert("Verse saved.");
+}
+function saveDaily(){
+ const a=get("saved",[]),ref=$("dailyRef").textContent;
+ if(!a.some(x=>x.ref===ref)){a.unshift({ref,text:$("dailyText").textContent});put("saved",a)}
+ alert("Verse saved.");
+}
+function newVerse(){
+ dailyIndex=(dailyIndex+1)%daily.length;put("dailyIndex",dailyIndex);
+ $("dailyRef").textContent=daily[dailyIndex][0];$("dailyText").textContent=daily[dailyIndex][1];
+}
+async function shareDaily(){
+ const text=$("dailyRef").textContent+"\n"+$("dailyText").textContent;
+ try{if(navigator.share)await navigator.share({title:"FaithAnchor",text});
+ else{await navigator.clipboard.writeText(text);alert("Copied.")}}
+ catch(e){}
+}
+function resume(){
+ bi=get("bi",0);ch=get("ch",1);$("book").value=bi;populateChapters();$("chapter").value=ch;page("bible");loadChapter();
+}
+function searchPage(){page("search");$("query").focus()}
+function searchBible(){
+ const q=$("query").value.trim().toLowerCase();
+ if(!q)return alert("Type a word or phrase to search.");
+ const results=[];
+ for(let b=0;b<books.length;b++){
+  for(let c=1;c<=books[b][1];c++){
+   const arr=get(cacheKey(b,c),[]);
+   arr.forEach(v=>{if(v.text.toLowerCase().includes(q))results.push({ref:books[b][0]+" "+c+":"+v.number,text:v.text,b,c})});
+   if(results.length>=100)break;
+  }
+  if(results.length>=100)break;
+ }
+ $("searchResults").innerHTML=results.length?`<p class="small">Found ${results.length} matches in downloaded chapters.</p>`+results.map(v=>`<div class="result"><strong>${esc(v.ref)}</strong><p>${esc(v.text)}</p><button class="secondary" onclick="openRef(${v.b},${v.c})">Read chapter</button></div>`).join(""):"<p>No matches in saved chapters. Download more chapters or try another search.</p>";
+}
+function openRef(b,c){bi=b;ch=c;$("book").value=b;populateChapters();$("chapter").value=c;page("bible");loadChapter()}
+function saveReflection(){put("reflection",$("reflection").value);alert("Reflection saved.")}
+function saveNote(){
+ const title=$("noteTitle").value.trim(),text=$("noteText").value.trim();
+ if(!title||!text)return alert("Enter a title and your notes.");
+ const a=get("notes",[]);a.unshift({title,text,date:new Date().toLocaleDateString()});put("notes",a);
+ $("noteTitle").value="";$("noteText").value="";renderLibrary();alert("Note saved.");
+}
+function renderLibrary(){
+ const a=get("saved",[]),n=get("notes",[]);
+ $("savedVerses").innerHTML="<h2>Saved verses</h2>"+(a.length?a.map((v,i)=>`<div class="card"><strong>${esc(v.ref)}</strong><p>${esc(v.text)}</p><button class="secondary" onclick="removeSaved(${i})">Remove</button></div>`).join(""):"<p>No saved verses yet.</p>");
+ $("notes").innerHTML="<h2>My notes</h2>"+(n.length?n.map(v=>`<div class="card"><h3>${esc(v.title)}</h3><p>${esc(v.text)}</p><small>${esc(v.date)}</small></div>`).join(""):"<p>No notes yet.</p>");
+}
+function removeSaved(i){const a=get("saved",[]);a.splice(i,1);put("saved",a);renderLibrary()}
+function savePrayer(){
+ const text=$("prayerText").value.trim();if(!text)return alert("Write your prayer first.");
+ const a=get("prayers",[]);a.unshift({title:$("prayerTitle").value.trim()||"My prayer",text,date:new Date().toLocaleDateString()});put("prayers",a);
+ $("prayerTitle").value="";$("prayerText").value="";renderPrayers();alert("Prayer saved on this device.");
+}
+function renderPrayers(){
+ const a=get("prayers",[]);
+ $("prayers").innerHTML=a.length?a.map(p=>`<div class="card"><h3>${esc(p.title)}</h3><p>${esc(p.text)}</p><small>${esc(p.date)}</small></div>`).join(""):"<p>Your prayers will appear here.</p>";
+}
+const plan=[["John 14","Jesus offers peace"],["Psalm 23","The Lord is your shepherd"],["Philippians 4","Peace through prayer"],["Matthew 6","Trust instead of worry"],["Isaiah 41","God is with you"],["Romans 8","Nothing separates us from God's love"],["Psalm 91","Rest in God's protection"]];
+function renderPlan(){
+ const done=get("done",[]);
+ $("planList").innerHTML=plan.map((p,i)=>`<div class="result"><label><input type="checkbox" style="width:auto" ${done.includes(i)?"checked":""} onchange="toggleDay(${i},this.checked)"><strong>Day ${i+1}: ${p[0]}</strong></label><p class="small">${p[1]}</p></div>`).join("");
+ $("progress").textContent=done.length+" of 7 days completed";
+}
+function toggleDay(i,on){let a=get("done",[]);a=on?[...new Set([...a,i])]:a.filter(x=>x!==i);put("done",a);renderPlan()}
+const guide={
+ anxiety:["Philippians 4:6-7","Bring your worries to God in prayer, with thanksgiving. This passage teaches that God's peace can guard your heart and mind."],
+ forgiveness:["Ephesians 4:32","Be kind and compassionate, forgiving others as God forgave you through Christ."],
+ prayer:["Matthew 6:9-13","Jesus teaches a model of prayer that honours God, seeks His will, asks for daily provision, and seeks forgiveness."],
+ love:["1 Corinthians 13:4-7","Biblical love is patient and kind. It is not boastful, selfish, or quick to anger."],
+ hope:["Romans 15:13","Paul prays that the God of hope will fill believers with joy and peace as they trust in Him."],
+ faith:["Hebrews 11:1","Faith is described as the substance of things hoped for and the evidence of things not seen."],
+ sadness:["Psalm 34:18","The Lord is nigh unto them that are of a broken heart; and saveth such as be of a contrite spirit."],
+ fear:["Isaiah 41:10","God tells His people not to fear, promising His presence, strength, help, and support."],
+ strength:["Philippians 4:13","Paul speaks of finding strength in Christ through changing circumstances."],
+ purpose:["Proverbs 3:5-6","Trust in the Lord rather than relying only on your own understanding, and acknowledge Him in your ways."],
+ anger:["James 1:19-20","Be swift to hear, slow to speak, and slow to wrath."],
+ gratitude:["1 Thessalonians 5:18","Give thanks in every circumstance; gratitude can help direct your attention to God's goodness."]
+};
+function askGuide(){
+ const input=$("chatInput"),q=input.value.trim();if(!q)return;
+ const box=$("chatMessages");
+ box.innerHTML+=`<div class="bubble me">${esc(q)}</div>`;
+ const lower=q.toLowerCase();
+ let found=Object.keys(guide).find(k=>lower.includes(k));
+ let answer=found?guide[found][1]+"\n\nRead: "+guide[found][0]:"I don't have a prepared answer for that topic yet. Try asking about prayer, forgiveness, anxiety, love, hope, faith, sadness, fear, strength, purpose, anger or gratitude. You can also search Scripture in the Bible section.";
+ box.innerHTML+=`<div class="bubble bot">${esc(answer)}</div>`;
+ input.value="";box.scrollTop=box.scrollHeight;
+}
+function init(){
+ populate();
+ $("reflection").value=get("reflection","");
+ $("dailyRef").textContent=daily[dailyIndex][0];
+ $("dailyText").textContent=daily[dailyIndex][1];
+ $("lastRead").textContent=books[bi][0]+" "+ch;
+}
+init();
+</script>
+</body>
+</html>

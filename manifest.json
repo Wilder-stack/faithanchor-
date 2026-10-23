@@ -1,0 +1,11 @@
+
+{
+  "name": "FaithAnchor",
+  "short_name": "FaithAnchor",
+  "description": "Grow closer to God every day.",
+  "start_url": "./index.html",
+  "display": "standalone",
+  "background_color": "#f7f9f2",
+  "theme_color": "#f7f9f2",
+  "orientation": "portrait"
+}
